@@ -10,7 +10,6 @@ import usersRoutes from "./routes/users";
 import cartRoutes from "./routes/cart";
 import ordersRoutes from "./routes/orders";
 import addressesRoutes from "./routes/addresses";
-import productsThumbnailsRoutes from "./routes/productsThumbnailImages";
 import productsImagesRoutes from "./routes/productsImagesRoutes";
 import FakerRoute from "./routes/fakerRoutes";
 import { ProductsModel } from "./models/products";
@@ -19,14 +18,30 @@ import { ReviewsModel } from "./models/reviews";
 import { CategoriesModel } from "./models/categories";
 import { UsersModel } from "./models/users";
 import { OrdersModel } from "./models/orders";
-import { CartsModel } from "./models/cart";
+import { CartsModel } from './models/cart';
+import { BrandsModel } from './models/brands';
 import cors from "cors";
-import { sequelize } from "./config/database";
+import { sequelize } from './config/database';
+import brandsRoutes from './routes/brands';
+import fakerRoutes from "./routes/fakerRoutes";
 
 const app = express();
 dotenv.config();
 app.use(cors());
 app.use(express.json());
+
+app.use("/faker",fakerRoutes);
+app.use("/products",productsRoutes);
+app.use("/reviews",reviewsRoutes);
+app.use("/categories",categoriesRoutes);
+app.use("/wishlist",wishlistRoutes);
+app.use("/users",usersRoutes);
+app.use("/cart",cartRoutes);
+app.use("/orders",ordersRoutes);
+app.use("/addresses",addressesRoutes);
+app.use("/productsImages",productsImagesRoutes)
+app.use("/brands",brandsRoutes)
+
 
 // sequelize
 //   .authenticate()
@@ -47,20 +62,6 @@ app.use(express.json());
 //   .catch((err) => {
 //     console.log("Error syncing the database", err);
 //   });
-
-app.use("/faker", FakerRoute);
-app.use("/products", productsRoutes);
-app.use("/reviews", reviewsRoutes);
-app.use("/categories", categoriesRoutes);
-app.use("/wishlist", wishlistRoutes);
-app.use("/users", usersRoutes);
-app.use("/cart", cartRoutes);
-app.use("/orders", ordersRoutes);
-app.use("/addresses", addressesRoutes);
-app.use("/productsThumbnails", productsThumbnailsRoutes);
-app.use("/productsImages", productsImagesRoutes);
-
-// * Only uncomment this to create a table in your database
 
 const PORT = process.env.PORT;
 app.listen(PORT, () =>
