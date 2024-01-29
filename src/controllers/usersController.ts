@@ -10,7 +10,7 @@ import { UsersModel } from "./../models/users";
 import { SessionsModel } from "../models/sessions";
 import { v4 as uuidv4 } from "uuid";
 import { Session, User } from "../types";
-// import { Session, User } from "../types";
+
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
