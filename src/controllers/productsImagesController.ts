@@ -33,7 +33,7 @@ export const createProductImages = async (req :Request,res:Response)=>{
         }
         const alt = req.body.alt;
         const isMain = req.body.isMain;
-        console.log(isMain)
+        //console.log(isMain)
         if(isMain != "false" && isMain != "true"){
             return res.status(400).json({error:"isMain is required"})
         }
@@ -48,50 +48,53 @@ export const createProductImages = async (req :Request,res:Response)=>{
         const mainImages : any = [];
         const thumbnails : any = [];
         const expectedLength = imageFile.length;
-        
-        imageFile?.forEach(async(e : any)=>{
-            console.log(e)
-                let base64Image = e.buffer.toString('base64');
+    
+        for(let i =0;i <imageFile.length;i++){
+            await (async function run() {
+                let base64Image = imageFile[i].buffer.toString('base64');
                 let UploadedImage = await cloudinary.uploader.upload(`data:image/png;base64,${base64Image}`,{
-                  use_filename: true,
-                  resource_type:"image",
-                  folder:process.env.PRODUCTSIMAGESCOLLECTION_IMAGES_FOLDER_PATH,
-                  transformation:[{width:1400,height:1400,crop:"fit"}]
-                }).then(async(result)=>{
-                    let thumbnail = await imageThumbnail(`${base64Image}`,thumbnailOptions)
-                    
-                    mainImages.push(result.secure_url);
+                    use_filename: true,
+                    resource_type:"image",
+                    folder:process.env.PRODUCTSIMAGESCOLLECTION_IMAGES_FOLDER_PATH,
+                    transformation:[{width:1400,height:1400,crop:"fit"}]
+                })
+                let thumbnail = await imageThumbnail(`${base64Image}`,thumbnailOptions)
+                mainImages.push(UploadedImage.secure_url);
 
-                    let thumbnailImg : any;
-                    let uploadedThumbnail = await cloudinary.uploader.upload(`data:image/png;base64,${thumbnail}`,{
-                        use_filename: true,
-                        resource_type:"image",
-                        folder:process.env.PRODUCTSTHUMBNAIL_IMAGES_FOLDER_PATH,
-                    }).then((thumbnailResult)=>{
-                        thumbnailImg = thumbnailResult.secure_url;
-                        thumbnails.push(thumbnailResult.secure_url)
-                    })
-                  const insertNewProductImagesToDb = ProductsImagesModel.create({
+                let thumbnailImg : any;
+                let uploadedThumbnail = await cloudinary.uploader.upload(`data:image/png;base64,${thumbnail}`,{
+                    use_filename: true,
+                    resource_type:"image",
+                    folder:process.env.PRODUCTSTHUMBNAIL_IMAGES_FOLDER_PATH,
+                })
+                thumbnailImg = uploadedThumbnail.secure_url;
+                thumbnails.push(uploadedThumbnail.secure_url)
+
+                const insertNewProductImagesToDb = await ProductsImagesModel.create({
                     product_id:productId,
-                    image_url: result.secure_url,
+                    image_url: UploadedImage.secure_url,
                     thumbnail_url:thumbnailImg,
                     alt,
                     isMain,
-                }).then(()=>{
-                    if(expectedLength == mainImages.length){
-                        return res.status(201).json({
-                              message: "success",
-                              productId,
-                              productImages:mainImages,
-                              thumbnails,
-                        }); 
-                    }
-                }).catch((error)=>{
-                    console.log(error);
-                    return res.status(400).json({error:"Uploading was not completed successfully for all images"})
-                })
-            })
-        }) 
+                })         
+              })(); 
+        }
+
+        if(expectedLength == mainImages.length){
+            return res.status(201).json({
+                message: "success",
+                productId,
+                productImages:mainImages,
+                thumbnails,
+            }); 
+        }else{
+            return res.status(409).json({
+                message: "success",
+                productId,
+                productImages:mainImages,
+                thumbnails,
+        })}
+        
     }catch(error){
         console.log(error);
         return res.status(500).json({error});
@@ -125,13 +128,13 @@ export const updateProductImage = async (req: Request,res:Response) =>{
         let splitted = url.split("/");
         let imgWithExt = splitted[splitted.length - 1]
         let img = imgWithExt.split(".")[0]
-        console.log(img,"img")
+        //console.log(img,"img")
 
         let deletedImg = await cloudinary.api.delete_resources(
             [`${process.env.PRODUCTSIMAGESCOLLECTION_IMAGES_FOLDER_PATH}/${img}`],
             { type: 'upload', resource_type: 'image' }
         )
-        console.log(deletedImg);
+        //console.log(deletedImg);
 
         let UploadedImage : any = await cloudinary.uploader.upload(`data:image/png;base64,${base64Image}`,{
             use_filename: true,

@@ -3,7 +3,6 @@ import { CartsModel } from "../models/cart";
 import { ProductsModel } from "../models/products";
 import {
   addToCartSchema,
-  cartsSchema,
   cartItemSchema,
 } from "../validators/validations";
 
@@ -18,12 +17,6 @@ export const getCartByUserId = async (req: Request, res: Response) => {
       attributes: { exclude: ["id"] },
       where: { user_id: userId },
     });
-
-    if (cart.length === 0) {
-      return res
-        .status(200)
-        .json({ error: "No cart entries found for the specified user ID" });
-    }
 
     return res.status(200).json({ message: "success", cartItems: cart });
   } catch (error) {
@@ -62,6 +55,7 @@ export const addToCart = async (req: Request, res: Response) => {
       product_name: product.dataValues.name,
       finalPrice: Number(product.dataValues.finalPrice),
       quantity,
+      offer:product.dataValues.offer,
       product_price: Number(product.dataValues.price),
       image_secure_url: product.dataValues.image_secure_url,
     });
@@ -101,7 +95,7 @@ export const deleteFromCart = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Failed deleting process" });
     }
 
-    return res.status(200).json({ message: "success" });
+    return res.status(200).json({ message: "success", productId });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
