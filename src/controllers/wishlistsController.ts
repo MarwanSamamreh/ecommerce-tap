@@ -1,4 +1,3 @@
-import { ProductsModel } from './../models/products';
 import { Request, Response } from "express";
 import { WishlistsModel } from "../models/wishlist";
 import { wishListSchema } from "../validators/validations";
@@ -11,15 +10,9 @@ export const getAllWishlistsByUserId = async (req: Request, res: Response) => {
     }
 
     const userWishList = await WishlistsModel.findAll({
-      attributes:{
-        exclude:["product_id"]
-      },
       where: {
         user_id: id,
       },
-      include:{
-        model:ProductsModel
-      }
     });
 
     return res
@@ -34,6 +27,7 @@ export const getAllWishlistsByUserId = async (req: Request, res: Response) => {
 export const addToWishList = async (req: Request, res: Response) => {
   try {
     const newWishList = req.body;
+    console.log(newWishList);
 
     const { error } = wishListSchema.validate(newWishList);
     if (error) {
@@ -81,7 +75,7 @@ export const clearWishList = async (req :Request,res: Response)=>{
     try{
 
         const id = Number(req.params.id);
-        
+        console.log(id)
         if (Number.isNaN(id)) {
           return res.sendStatus(400);
         }
