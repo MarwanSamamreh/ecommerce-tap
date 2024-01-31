@@ -3,6 +3,7 @@ import { CartsModel } from "../models/cart";
 import { ProductsModel } from "../models/products";
 import {
   addToCartSchema,
+  cartsSchema,
   cartItemSchema,
 } from "../validators/validations";
 
